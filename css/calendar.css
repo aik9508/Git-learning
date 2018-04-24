@@ -1,0 +1,92 @@
+/*
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+*/
+/* 
+    Created on : 2018-4-24, 10:05:30
+    Author     : wangke
+*/
+
+
+/* Month header */
+.month{
+    padding: 70px 25px;
+    width: 100%;
+    text-align: center;
+}
+
+/* Month list */
+.month ul,
+.weekdays ul,
+ul.calendar-line{
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+
+/* Previous button inside month header */
+.month .prev {
+    float: left;
+    cursor: pointer;
+}
+
+/* Next button */
+.month .next {
+    float: right;
+    cursor: pointer;
+}
+
+/* Weekdays (Mon-Sun) */
+.weekdays {
+    margin: 0;
+    padding: 10px 0;
+    background-color:#ddd;
+}
+
+.weekdays li {
+    display: inline-block;
+    width: 13.6%;
+    color: #666;
+    text-align: center;
+}
+
+.calendar{
+    height: 600px;
+    overflow: hidden;
+}
+
+.calendar .month-block.move-on{
+    transition-duration: 1s;
+}
+/* Calendar line */
+
+/* Calendar cell*/
+.calendar-cell{
+    display: inline-block;
+    width: 14.2857%;
+    height: 100px;
+    border-right: 0.5px solid #eee;
+    border-bottom: 0.5px solid #eee;
+    padding: 5px;
+    color: #ccc;
+}
+
+.calendar-cell.left{
+    border-left: 0.5px solid #eee;
+}
+
+.calendar-cell .cell-date-container.emphasize-date{
+    color: black;
+}
+
+.calendar-cell .cell-date-container{
+    text-align: right;
+}
+
+.calendar-cell .cell-date-today{
+    color: white;
+    padding: 3px;
+    background-color: red;
+    border-radius: 50%;
+}
