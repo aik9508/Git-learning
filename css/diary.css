@@ -1,0 +1,49 @@
+/*
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+*/
+/* 
+    Created on : 2018-4-24, 21:45:42
+    Author     : wangke
+*/
+
+#mycalendar.mini{
+    width: 200px;
+    float: left;
+    height: 100%;
+}
+
+/*#diarywindow{
+    position: fixed;
+    width: 500px;
+    height: 600px;
+    top: 50%;
+    left: 50%;
+    margin-top: -300px;  Negative half of height. 
+    margin-left: -250px;  Negative half of width. 
+    background-color: beige;
+    overflow-y: auto;
+    padding: 20px;
+    border-radius: 5px;
+    border: 1px solid black;
+    display: none;
+}*/
+
+#diarywindow{
+    padding: 20px;
+    display: none;
+    margin-left: 200px;
+}
+
+#diarywindow .prev{
+    float: left;
+    cursor: pointer;
+    display: inline-block;
+}
+
+#diarywindow .next{
+    float: right;
+    cursor: pointer;
+    display: inline-block;
+}

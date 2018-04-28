@@ -8,62 +8,67 @@ and open the template in the editor.
     Author     : wangke
 */
 
-
 /* Month header */
-.month{
+.calendar .month{
     padding: 70px 25px;
     width: 100%;
     text-align: center;
 }
 
 /* Month list */
-.month ul,
-.weekdays ul,
-ul.calendar-line{
+.calendar .month ul,
+.calendar .weekdays ul{
     list-style-type: none;
     margin: 0;
     padding: 0;
 }
 
 /* Previous button inside month header */
-.month .prev {
+.calendar .month .prev {
     float: left;
     cursor: pointer;
 }
 
 /* Next button */
-.month .next {
+.calendar .month .next {
     float: right;
     cursor: pointer;
 }
 
 /* Weekdays (Mon-Sun) */
-.weekdays {
+.calendar .weekdays {
     margin: 0;
     padding: 10px 0;
     background-color:#ddd;
 }
 
-.weekdays li {
+.calendar .weekdays li {
     display: inline-block;
-    width: 13.6%;
+    width: 14.2857%;
     color: #666;
     text-align: center;
 }
 
-.calendar{
+.calendar .month-block-mask{
     height: 600px;
     overflow: hidden;
+}
+
+.calendar .month-block{
+    border-left: 0.5px solid #eee;
 }
 
 .calendar .month-block.move-on{
     transition-duration: 1s;
 }
 /* Calendar line */
-
+.calendar .calendar-line {
+    height: 100px;
+}
 /* Calendar cell*/
-.calendar-cell{
+.calendar .calendar-cell{
     display: inline-block;
+    vertical-align: top;
     width: 14.2857%;
     height: 100px;
     border-right: 0.5px solid #eee;
@@ -72,21 +77,74 @@ ul.calendar-line{
     color: #ccc;
 }
 
-.calendar-cell.left{
-    border-left: 0.5px solid #eee;
-}
-
-.calendar-cell .cell-date-container.emphasize-date{
+.calendar .calendar-cell .cell-date-container.emphasize-date{
     color: black;
 }
 
-.calendar-cell .cell-date-container{
+.calendar .calendar-cell .cell-date-container{
     text-align: right;
 }
 
-.calendar-cell .cell-date-today{
+.calendar .calendar-cell .cell-date-today{
     color: white;
     padding: 3px;
     background-color: red;
     border-radius: 50%;
+}
+
+.calendar .calendar-cell .cell-diary{
+    height: 70px;
+    padding: 20px 5px;
+    text-align: center;
+}
+
+.calendar .calendar-cell .cell-diary .cell-diary-link{
+    cursor: pointer;
+}
+
+/* Mini Calendar is used when we don't show it month by month'*/
+/* Month header */
+.calendar.mini .month{
+    padding: 5px;
+    width: 100%;
+    text-align: center;
+}
+
+/* Weekdays (Mon-Sun) */
+.calendar.mini .weekdays {
+    margin: 0;
+    padding: 2px 0;
+}
+
+.calendar.mini .month-block-mask{
+    height: 120px;
+    overflow: hidden;
+}
+
+.calendar.mini .calendar-line{
+    height: 20px;
+}
+
+.calendar.mini .calendar-cell{
+    width: 14.2857%;
+    height: 20px;
+    border: none;
+    padding: 2px;
+}
+
+.calendar.mini .calendar-cell .cell-date-container{
+    text-align: center;
+}
+
+.calendar.mini .calendar-cell.hasdiary .cell-date-container{
+    border: 0.5px solid greenyellow;
+    cursor: pointer;
+}
+
+.calendar.mini .cell-day{
+    display: none;
+}
+
+.calendar.mini .calendar-cell .cell-diary{
+    display: none;
 }
