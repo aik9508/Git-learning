@@ -31,14 +31,14 @@ and open the template in the editor.
 }
 
 /* Month header */
-.calendar .month{
+.calendar .title{
     padding: 70px 25px;
     width: 100%;
     text-align: center;
 }
 
 /* Month list */
-.calendar .month ul,
+.calendar .title ul,
 .calendar .weekdays ul{
     list-style-type: none;
     margin: 0;
@@ -46,13 +46,13 @@ and open the template in the editor.
 }
 
 /* Previous button inside month header */
-.calendar .month .prev {
+.calendar .title .prev {
     float: left;
     cursor: pointer;
 }
 
 /* Next button */
-.calendar .month .next {
+.calendar .title .next {
     float: right;
     cursor: pointer;
 }
@@ -182,13 +182,9 @@ and open the template in the editor.
     text-align: center;
 }
 
-.calendar.mini.year .month,
+.calendar.mini.year .block-title,
 .calendar.mini.year .weekdays,
 .calendar.mini.year .month-block-mask{
     width: 200px;
-}
-
-.calendar.mini.year .month .prev,
-.calendar.mini.year .month .next{
-    display: none;
+    margin: 0 auto;
 }
