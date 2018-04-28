@@ -1,9 +1,10 @@
 // text color will be black if the date is in current month
 // the date will be wrapped by a red circle if the date is today
-function calendar_cell(calendar,date,iscurrentmonth){
+function calendar_cell(cal_block,date,iscurrentmonth){
     const self = this;
     var today = new Date();
-    self.calendar=calendar;
+    self.cal_block = cal_block;
+    self.calendar = cal_block.calendar;
     self.date=new Date(date.getTime());
     self.cell = $('<div class="calendar-cell">'+
                        '<div class="cell-date-container">'+
@@ -51,28 +52,29 @@ calendar_cell.prototype.addDiaryListener = function(){
                             "<p>"+content[iter]+"</p>");
                 });
                 if(self.calendar.mode!=="mini"){
-                    self.calendar.minimode();
+                    self.calendar.setMode("mini");
                 }
                 $("#mycalendar").addClass("mini");
                 $("#diarywindow").show();
             }
         });
     };
-    if(self.calendar.mode==="mini"){
+    if(self.cal_block.mode==="mini"){
         self.cell.click(opendiary);
     }else{
         self.cell_diary.click(opendiary);
     }
 };
 
-function calendar(mini){
+function calendar_block(cal, date){
     const self=this;
+    self.calendar = cal;
+    self.currentdate = new Date(date.getTime());
     // calendar cells
     self.cells=[];
     self.diarydates=[];
-    self.currentdate = new Date();
-    self.calendar_wrapper = 
-            $("<div class=calendar>"+
+    self.block_wrapper = 
+            $("<div class=calendar-block>"+
                 "<div class='month'>"+
                     "<ul></ul>"+
                 "</div>"+
@@ -81,59 +83,39 @@ function calendar(mini){
                     "<div class='month-block'></div>"+
                 "</div>"+
               "</div>");
-    if(mini){
-        self.mode="mini";
-        self.calendar_wrapper.addClass("mini");
+    if(self.calendar.mode){
+        self.mode=self.calendar.mode;
     }else{
-        self.mode="normal";
+        self.mode="month";
     }
     self.btn_next = $('<li class="next">&#10095;</li>');
     self.btn_prev = $('<li class="prev">&#10094;</li>');
-    self.head = $('<li></li>'); // year and month
-    self.body = $(self.calendar_wrapper.find(".month-block-mask")[0]); // calendar body
-    self.month_block = $(self.body.find("div")[0]);
-    $(self.calendar_wrapper.find(".month>ul")[0])
+    self.title = $('<li></li>'); // year and month
+    var month_block_mask = $(self.block_wrapper.find(".month-block-mask")[0]);
+    self.month_block = $(month_block_mask.find("div")[0]);
+    $(self.block_wrapper.find(".month>ul")[0])
                            .append(self.btn_prev)
                            .append(self.btn_next)
-                           .append(self.head);
+                           .append(self.title);
     for(var i=0; i<7; i++){
-        $(self.calendar_wrapper.find(".weekdays")[0])
-                               .append($("<li>"
-                                         +((mini)?"":"周")
-                                         +calendar.str_days[i]
-                                         +"</li>"));
+        $(self.block_wrapper.find(".weekdays")[0])
+                                .append($("<li>"
+                                +((self.mode==="month")?"周":"")
+                                +calendar.str_days[i]
+                                +"</li>"));
     }
 }
-Object.defineProperty(calendar,"str_months",{
-    value: ["一月","二月","三月","四月","五月","六月","七月","八月","九月",
-          "十月","十一月","十二月"],
-    writable: false,
-    enumerable: true,
-    configurable: true
-});
 
-Object.defineProperty(calendar,"str_months_en",{
-    value: ["january","feburary","march","april","may","june","july","august",
-            "september","october","november","december"],
-    writable: false,
-    enumerable: true,
-    configurable: true
-});
-
-Object.defineProperty(calendar,"str_days",{
-    value: ["日", "一", "二", "三", "四", "五", "六"],
-    writable: false,
-    enumerable: true,
-    configurable: true
-});
-
-calendar.prototype.init = function(){
+calendar_block.prototype.init = function(){
     const self=this;
-    self.head.html(self.currentdate.getFullYear()+"年"+
-                   calendar.str_months[self.currentdate.getMonth()]);
+    self.title.html((self.mode==="year"?"":(self.currentdate.getFullYear()+"年"))
+                    +calendar.str_months[self.currentdate.getMonth()]);
     self.fillcalendar();
+    if(self.mode === "year"){
+        return;
+    }
     self.btn_next.click(function(){
-        var clines = self.body.find("div.calendar-line");
+        var clines = self.month_block.find("div.calendar-line");
         if(clines.length===6){
             self.month_block.addClass("move-on");
             var nnewclines = (self.end_date.getDate()<=7)?5:4;
@@ -165,7 +147,7 @@ calendar.prototype.init = function(){
                 self.month_block.css({"transform":"translate(0,0)"});
                 self.month_block.find("div.calendar-line:lt("+nnewclines+")").remove();
                 self.cells.splice(0,nnewclines*7);
-                self.head.html(self.currentdate.getFullYear()+"年"+
+                self.title.html(self.currentdate.getFullYear()+"年"+
                                calendar.str_months[self.currentdate.getMonth()]);
                 $(self.cells).each(function(){
                     if($(this)[0].date.getMonth()===self.currentdate.getMonth()){
@@ -180,7 +162,7 @@ calendar.prototype.init = function(){
     });
     
     self.btn_prev.click(function(){
-        var clines = self.body.find("div.calendar-line");
+        var clines = self.month_block.find("div.calendar-line");
         if(clines.length===6){
             var tmp=new Date(self.start_date.getTime());
             tmp.setDate(tmp.getDate()-1);
@@ -218,7 +200,7 @@ calendar.prototype.init = function(){
                 self.month_block.find("div.calendar-line:gt(5)").remove();
                 self.cells.splice((6-nnewclines)*7,nnewclines*7);
                 self.cells=tmp_cells.concat(self.cells);
-                self.head.html(self.currentdate.getFullYear()+"年"+
+                self.title.html(self.currentdate.getFullYear()+"年"+
                                calendar.str_months[self.currentdate.getMonth()]);
                 $(self.cells).each(function(){
                     if($(this)[0].date.getMonth()===self.currentdate.getMonth()){
@@ -235,7 +217,7 @@ calendar.prototype.init = function(){
 };
 
 // fill the calendar from a given date (6 lines)
-calendar.prototype.fillcalendar = function(){
+calendar_block.prototype.fillcalendar = function(){
     const self=this;
     var date = self.currentdate;
     self.start_date = new Date(date.getFullYear(),date.getMonth(),1);
@@ -262,7 +244,7 @@ calendar.prototype.fillcalendar = function(){
 };
 
 // decides if it exists a diary written at a specific date.
-calendar.prototype.getDiaryDates = function(){
+calendar_block.prototype.getDiaryDates = function(){
     const self = this;
     var mm = self.currentdate.getMonth();
     var yy = self.currentdate.getFullYear();
@@ -282,12 +264,12 @@ calendar.prototype.getDiaryDates = function(){
     });
 };
 
-calendar.prototype.addDiaryListeners = function(){
+calendar_block.prototype.addDiaryListeners = function(){
     console.log('addDiaryListeners');
     const self = this;
     $(self.diarydates).each(function(dd){
         var ind = self.firstday+self.diarydates[dd]-1;
-        if(self.mode==="normal"){
+        if(self.mode!=="mini"){
             self.cells[ind]
                 .cell_diary.html('<span class="cell-diary-link">日记</span>');
         }
@@ -298,32 +280,107 @@ calendar.prototype.addDiaryListeners = function(){
     });
 };
 
-calendar.prototype.minimode = function(){
+calendar_block.prototype.setMode = function(mode){
     const self = this;
-    self.mode = "mini";
-    self.calendar_wrapper.addClass("mini");
-    $(self.calendar_wrapper.find(".weekdays>li")).each(function(i){
-        $(this).html(calendar.str_days[i]);
+    self.mode = mode;
+    $(self.block_wrapper.find(".weekdays>li")).each(function(i){
+        $(this).html((self.mode === "month" ? "周" : "") +
+                     calendar.str_days[i]);
     });
     self.addDiaryListeners();
 };
 
-calendar.prototype.normalmode = function(){
+function calendar(mode){
     const self = this;
-    self.mode = "normal";
-    self.calendar_wrapper.removeClass("mini");
-    $(self.calendar_wrapper.find(".weekdays>li")).each(function(i){
-        $(this).html("周"+calendar.str_days[i]);
+    self.mode = (mode)?mode:"month";
+    self.currentdate = new Date();
+    self.calendar_wrapper = 
+            $("<div class=calendar>"+
+                "<div class=calendar-menu>"+
+                    "<ul>"+
+                        "<li class='mode-year'>年</li>"+
+                        "<li class='mode-month'>月</li>"+
+                        "<li class='mode-day'>日</li>"+
+                    "</ul>"+
+                "</div>"+
+                "<div class='calendar-blocks'></div>"+
+              "</div>");
+    self.menu = $(self.calendar_wrapper.find(".calendar-menu")[0]);
+    self.btn_year = $(self.calendar_wrapper.find(".mode-year")[0]);
+    self.btn_month = $(self.calendar_wrapper.find(".mode-month")[0]);
+    self.btn_day = $(self.calendar_wrapper.find(".mode-day")[0]);
+    if(self.mode === "month"){
+        self.btn_month.addClass("active");
+    }else if(self.mode === "year"){
+        self.btn_year.addClass("active");
+    }
+    self.btn_year.click(function(){
+        self.setMode("year");
     });
-    self.addDiaryListeners();
+    self.blocks_wrapper= $(self.calendar_wrapper.find(".calendar-blocks")[0]);
+    self.blocks = $([new calendar_block(self,self.currentdate)]);
+    self.blocks_wrapper.append(self.blocks[0].block_wrapper);
+}
+
+Object.defineProperty(calendar,"str_months",{
+    value: ["一月","二月","三月","四月","五月","六月","七月","八月","九月",
+          "十月","十一月","十二月"],
+    writable: false,
+    enumerable: true,
+    configurable: true
+});
+
+Object.defineProperty(calendar,"str_months_en",{
+    value: ["january","feburary","march","april","may","june","july","august",
+            "september","october","november","december"],
+    writable: false,
+    enumerable: true,
+    configurable: true
+});
+
+Object.defineProperty(calendar,"str_days",{
+    value: ["日", "一", "二", "三", "四", "五", "六"],
+    writable: false,
+    enumerable: true,
+    configurable: true
+});
+
+calendar.prototype.init = function(){
+    const self = this;
+    self.blocks.each(function(){
+            this.init();
+    });
+};
+
+calendar.prototype.setMode = function(mode){
+    const self = this;
+    self.mode = mode;
+    self.calendar_wrapper.removeClass();
+    self.calendar_wrapper.addClass(mode);
+    self.calendar_wrapper.addClass("calendar");
+    if(mode === "year"){
+        self.calendar_wrapper.addClass("mini");
+        var yy = self.currentdate.getFullYear();
+        self.blocks = $([]);
+        self.blocks_wrapper.html("");
+        for(var i=0; i<12; i++){
+            var date = new Date(yy,i,1);
+            var cblock = new calendar_block(self,date);
+            cblock.init();
+            self.blocks.push(cblock);
+            self.blocks_wrapper.append(cblock.block_wrapper);
+        }
+    }else{
+        self.blocks.each(function(){
+            this.setMode(mode);
+        });
+    }
 };
 
 $(document).ready(function(){
     var mycalendar = new calendar();
     $("#mycalendar").append(mycalendar.calendar_wrapper);
     mycalendar.init();
-    console.log(mycalendar.start_date);
-    console.log(mycalendar.end_date);
 });
 
 

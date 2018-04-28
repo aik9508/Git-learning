@@ -9,9 +9,10 @@ and open the template in the editor.
 */
 
 #mycalendar.mini{
+    position: sticky;
     width: 200px;
+    top: 10px;
     float: left;
-    height: 100%;
 }
 
 /*#diarywindow{
