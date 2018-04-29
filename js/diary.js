@@ -1,3 +1,57 @@
+function Diary(cal){
+    const self = this;
+    self.calendar = cal;
+    self.diarywindow = $('<div class="diarywindow">' + 
+                            '<div class="prev">上一篇</div>' +
+                            '<div class="next">下一篇</div>' +
+                            '<div class="diarycontent"></div>' +
+                         '</div>');
+    self.content = $(self.diarywindow.find(".diarycontent")[0]);
+    self.btn_next = $(self.diarywindow).find(".next");
+    self.btn_prev = $(self.diarywindow).find(".prev");
+}
+
+Diary.prototype.init = function(){
+    const self = this;
+    self.btn_next.click(function(){
+         if(self.calendar.currentdiary && self.calendar.currentdiary.next){ 
+            self.calendar.currentdiary = self.calendar.currentdiary.next;
+            self.opendiary.bind(self)(self.calendar.currentdiary.date); 
+        }
+    });
+    self.btn_prev.click(function(){
+         if(self.calendar.currentdiary && self.calendar.currentdiary.prev){ 
+            self.calendar.currentdiary = self.calendar.currentdiary.prev;
+            self.opendiary.bind(self)(self.calendar.currentdiary.date); 
+        }
+    });
+};
+
+Diary.prototype.opendiary = function(date){
+    const self = this;
+    var mm = date.getMonth();
+    var yy = date.getFullYear();
+    var dd = date.getDate();
+    var diarypath = yy+"/"+calendar.str_months_en[mm]+"/"+dd+".json";
+    $.ajax({
+            url: diarypath,
+            async: true,
+            error: function(){
+            },
+            success: function(jsondiarydata){
+                var diarydata = JSON.parse(jsondiarydata);
+                var content = diarydata.content;
+                self.content.html("");
+                self.content.append(
+                    "<p class='text-center'>"+yy+"年"+(mm+1)+"月"+dd+"日</p>");
+                $(content).each(function(iter){
+                    self.calendar.diary.content.append(
+                            "<p>"+content[iter]+"</p>");
+                });
+            }
+    });
+};
+
 // text color will be black if the date is in current month
 // the date will be wrapped by a red circle if the date is today
 function calendar_cell(cal_block,date,iscurrentmonth){
@@ -21,7 +75,8 @@ function calendar_cell(cal_block,date,iscurrentmonth){
         self.cell_date_container.addClass("emphasize-date");
     }
     self.cell_date.html(date.getDate());
-    if(self.date.getFullYear() === today.getFullYear() &&
+    if(iscurrentmonth &&
+       self.date.getFullYear() === today.getFullYear() &&
        self.date.getMonth() === today.getMonth() &&
        self.date.getDate() === today.getDate()){
        self.cell_date.addClass("cell-date-today");
@@ -32,39 +87,29 @@ calendar_cell.prototype.addDiaryListener = function(){
     const self = this;
     self.cell.off();
     self.cell_diary.off();
-    var mm = self.date.getMonth();
-    var yy = self.date.getFullYear();
-    var dd = self.date.getDate();
-    var diarypath = yy+"/"+calendar.str_months_en[mm]+"/"+dd+".json";
     var opendiary = function(){
-        $.ajax({
-            url: diarypath,
-            async: true,
-            error: function(){
-            },
-            success: function(jsondiarydata){
-                var diarydata = JSON.parse(jsondiarydata);
-                var diarydate = diarydata.date;
-                var content = diarydata.content;
-                $(".diarycontent").html("");
-                $(".diarycontent").append("<p class='text-center'>"+diarydate+"</p>");
-                $(content).each(function(iter){
-                    $(".diarycontent").append(
-                            "<p>"+content[iter]+"</p>");
-                });
-                if(self.calendar.mode!=="mini"){
-                    self.calendar.setMode("mini");
-                }
-                $("#mycalendar").addClass("mini");
-                $("#diarywindow").show();
-            }
+        console.log(self);
+        $.when(self.calendar.diary.opendiary.bind(self.calendar.diary)
+              (self.date)).done(function(){
+        if(self.calendar.mode!=="day"){
+            self.calendar.setMode("day");
+        }
+        self.calendar.diary.diarywindow.show();
+        self.calendar.currentdate = new Date(self.date);
+        var key = self.date.getFullYear()+
+                  "/"+(self.date.getMonth()+1)
+                  +"/"+self.date.getDate();
+        self.calendar.currentdiary = self.calendar.diarydates[key];
         });
     };
+    // Class hasdairy permits to distinguish the dates with diary 
+    // with others in day mode
+    self.cell.addClass("hasdiary");
     if(self.cal_block.mode!=="month"){
-        console.log('ok');
         self.cell.click(opendiary);
     }else{
         self.cell_diary.click(opendiary);
+        self.cell_diary.html('<span class="cell-diary-link">日记</span>');
     }
 };
 
@@ -134,6 +179,7 @@ calendar_block.prototype.fillblock = function(){
         self.month_block.append(calendar_line);
     }
     self.end_date = new Date(cdate.getTime());
+    console.log('fillblock');
     self.getDiaryDates();
 };
 
@@ -236,7 +282,6 @@ calendar_block.prototype.goToPreviousMonth = function(){
 };
 
 calendar_block.prototype.goToNextYear = function(){
-    console.log('goToNextYear');
     const self = this;
     self.currentdate.setFullYear(self.currentdate.getFullYear()+1);
     self.fillblock();
@@ -248,40 +293,19 @@ calendar_block.prototype.goToPreviousYear = function(){
     self.fillblock();
 };
 
+calendar_block.prototype.hasDiary = function(date){
+    const self = this;
+    var key = date.getFullYear()+"/"+(date.getMonth()+1)+"/"+date.getDate();
+    return self.calendar.diarydates[key];
+};
+
 // decides if it exists a diary written at a specific date.
 calendar_block.prototype.getDiaryDates = function(){
     const self = this;
-    var mm = self.currentdate.getMonth();
-    var yy = self.currentdate.getFullYear();
-    var filepath = yy+"/"+calendar.str_months_en[mm]+"/dates.json";
-    $.ajax({
-        url:filepath,
-        async:true,
-        error: function(){
-            return;
-        },
-        success: function(jsondata)
-        {
-            var data=JSON.parse(jsondata);
-            self.diarydates=data.dates;
-            self.addDiaryListeners();
+    $(self.cells).each(function(){
+        if(self.hasDiary(this.date)){
+            this.addDiaryListener();
         }
-    });
-};
-
-calendar_block.prototype.addDiaryListeners = function(){
-    console.log('addDiaryListeners');
-    const self = this;
-    $(self.diarydates).each(function(dd){
-        var ind = self.firstday+self.diarydates[dd]-1;
-        if(self.mode!=="mini"){
-            self.cells[ind]
-                .cell_diary.html('<span class="cell-diary-link">日记</span>');
-        }
-        // Class hasdairy permits to distinguish the dates with diary 
-        // with others in mini mode
-        self.cells[ind].cell.addClass("hasdiary");
-        self.cells[ind].addDiaryListener();
     });
 };
 
@@ -303,6 +327,9 @@ function calendar(mode){
                 "</div>"+
                 "<div class='calendar-blocks'></div>"+
               "</div>");
+    self.diary = new Diary(self);
+    self.diarydates = {};
+    self.currentdiary = null;
     self.menu = $(self.calendar_wrapper.find(".calendar-menu")[0]);
     self.btn_year = $(self.calendar_wrapper.find(".mode-year")[0]);
     self.btn_month = $(self.calendar_wrapper.find(".mode-month")[0]);
@@ -315,11 +342,13 @@ function calendar(mode){
     self.btn_month.click(function(){
         if(self.mode!=="month"){
             self.setMode("month");
+            self.diary.diarywindow.hide();
         }
     });
     self.btn_year.click(function(){
         if(self.mode!=="year"){
             self.setMode("year");
+            self.diary.diarywindow.hide();
         }
     });
     self.btn_next = $('<li class="next">&#10095;</li>');
@@ -331,7 +360,12 @@ function calendar(mode){
                            .append(self.title);
     
     self.blocks_wrapper= $(self.calendar_wrapper.find(".calendar-blocks")[0]);
-    self.setMode(self.mode);
+    $.when(self.init()).done(function(){
+        console.log(self.diarydates);
+        // things to do after initializing self.diarydates
+        self.diary.init();
+        self.setMode(self.mode);
+    });
 }
 
 Object.defineProperty(calendar,"str_months",{
@@ -356,6 +390,33 @@ Object.defineProperty(calendar,"str_days",{
     enumerable: true,
     configurable: true
 });
+
+calendar.prototype.init = function(){
+    const self = this;
+    return $.ajax({
+        url:"dates.txt",
+        success:function(data){
+            var dates = data.match(/(\d{4}\/\d+\/\d+)/g);
+            var keys = [];
+            for(var i = 0; i < dates.length; i++){
+                var date = new Date(dates[i]);
+                var key = date.getFullYear()+"/"
+                          +(date.getMonth()+1)+"/"
+                          +date.getDate();
+                keys.push(key);
+                var node = {date : date};
+                if(i===0){
+                    node.prev = null;
+                }else{
+                    node.prev = self.diarydates[keys[i-1]];
+                    node.prev.next = node;
+                }
+                node.next = null;
+                self.diarydates[key]=node;
+            }
+        }
+    });
+};
 
 calendar.prototype.setMode = function(mode){
     const self = this;
@@ -386,6 +447,7 @@ calendar.prototype.setMode = function(mode){
         if(mode === "month"){
             self.btn_month.addClass("active");
         }else{
+            self.calendar_wrapper.addClass("mini");
             self.btn_day.addClass("active");
         }
         var cblock = new calendar_block(self,self.currentdate);
@@ -440,8 +502,9 @@ calendar.prototype.goToPreviousYear = function(){
 };
 
 $(document).ready(function(){
-    var mycalendar = new calendar();
-    $("#mycalendar").append(mycalendar.calendar_wrapper);
+    var mycal = new calendar();
+    $("#mycalendar").append(mycal.calendar_wrapper)
+                    .append(mycal.diary.diarywindow);
 });
 
 

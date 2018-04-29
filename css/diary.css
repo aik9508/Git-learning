@@ -8,12 +8,12 @@ and open the template in the editor.
     Author     : wangke
 */
 
-#mycalendar.mini{
+/*#mycalendar.mini{
     position: sticky;
     width: 200px;
     top: 10px;
     float: left;
-}
+}*/
 
 /*#diarywindow{
     position: fixed;
