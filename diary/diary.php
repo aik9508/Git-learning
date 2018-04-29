@@ -38,11 +38,6 @@
                     <div id="mycalendar">
 
                     </div>
-                    <div id="diarywindow">
-                        <div class="prev">上一篇</div>
-                        <div class="next">下一篇</div>
-                        <div class="diarycontent"></div>
-                    </div>
                 </div>
             </div>
         </div>
@@ -51,5 +46,9 @@
             <div>Last updated : April 21, 2018</div>
             <div>Author : Ke Wang</div>
         </footer>
+    <script>
+        var str_months = ["january","feburary","march","april","may","june","july","august",
+        "september","october","november","december"];
+    </script>
     </body>
 </html>
