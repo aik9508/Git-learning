@@ -16,13 +16,13 @@ Diary.prototype.init = function(){
     self.btn_next.click(function(){
          if(self.calendar.currentdiary && self.calendar.currentdiary.next){ 
             self.calendar.currentdiary = self.calendar.currentdiary.next;
-            self.opendiary.bind(self)(self.calendar.currentdiary.date); 
+            self.opendiary.bind(self)(self.calendar.currentdiary.date);   
         }
     });
     self.btn_prev.click(function(){
          if(self.calendar.currentdiary && self.calendar.currentdiary.prev){ 
             self.calendar.currentdiary = self.calendar.currentdiary.prev;
-            self.opendiary.bind(self)(self.calendar.currentdiary.date); 
+            self.opendiary.bind(self)(self.calendar.currentdiary.date);
         }
     });
 };
@@ -44,6 +44,8 @@ Diary.prototype.opendiary = function(date){
                 self.content.html("");
                 self.content.append(
                     "<p class='text-center'>"+yy+"年"+(mm+1)+"月"+dd+"日</p>");
+                self.btn_next.html(self.calendar.currentdiary.next?"下一篇":"");
+                self.btn_prev.html(self.calendar.currentdiary.prev?"上一篇":"");
                 $(content).each(function(iter){
                     self.calendar.diary.content.append(
                             "<p>"+content[iter]+"</p>");
@@ -88,14 +90,13 @@ calendar_cell.prototype.addDiaryListener = function(){
     self.cell.off();
     self.cell_diary.off();
     var opendiary = function(){
-        console.log(self);
         $.when(self.calendar.diary.opendiary.bind(self.calendar.diary)
               (self.date)).done(function(){
+        self.calendar.diary.diarywindow.show();
+        self.calendar.currentdate = new Date(self.date);
         if(self.calendar.mode!=="day"){
             self.calendar.setMode("day");
         }
-        self.calendar.diary.diarywindow.show();
-        self.calendar.currentdate = new Date(self.date);
         var key = self.date.getFullYear()+
                   "/"+(self.date.getMonth()+1)
                   +"/"+self.date.getDate();
