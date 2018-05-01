@@ -27,7 +27,7 @@ and open the template in the editor.
 }
 
 .calendar .calendar-menu li.active{
-    background: #ccc;
+    background: rgba(200,200,200,0.5);;
 }
 
 /* Month header */
@@ -61,7 +61,7 @@ and open the template in the editor.
 .calendar .weekdays {
     margin: 0;
     padding: 10px 0;
-    background-color:#ddd;
+    background-color:rgba(200,200,200,0.5);
 }
 
 .calendar .weekdays li {

@@ -8,13 +8,6 @@ and open the template in the editor.
     Author     : wangke
 */
 
-/*#mycalendar.mini{
-    position: sticky;
-    width: 200px;
-    top: 10px;
-    float: left;
-}*/
-
 /*#diarywindow{
     position: fixed;
     width: 500px;
@@ -30,6 +23,20 @@ and open the template in the editor.
     border: 1px solid black;
     display: none;
 }*/
+
+.big-wrapper{
+    background-color: rgb(100,147,215);
+}
+
+.wrapper{
+    min-height: 100%;
+    background-image: url('../images/plum_flower.jpg');
+    background-size: 100%;
+    background-repeat: no-repeat;
+    background-color: rgb(100,147,215);
+    /*background-position-y: -200px;*/
+    width: 1170px;
+}
 
 #diarywindow{
     padding: 20px;
