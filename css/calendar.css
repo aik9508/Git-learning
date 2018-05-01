@@ -46,15 +46,21 @@ and open the template in the editor.
 }
 
 /* Previous button inside month header */
+.calendar .title .next,
 .calendar .title .prev {
-    float: left;
-    cursor: pointer;
-}
-
-/* Next button */
-.calendar .title .next {
     float: right;
     cursor: pointer;
+    width: 20px;
+    border-radius: 1px;
+    background-color: rgba(255,255,255,0.25);
+}
+
+.calendar .title .today{
+    float: right;
+    cursor: pointer;
+    width: 50px;
+    border-radius: 1px;
+    background-color: rgba(255,255,255,0.25);
 }
 
 /* Weekdays (Mon-Sun) */

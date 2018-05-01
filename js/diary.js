@@ -180,7 +180,6 @@ calendar_block.prototype.fillblock = function(){
         self.month_block.append(calendar_line);
     }
     self.end_date = new Date(cdate.getTime());
-    console.log('fillblock');
     self.getDiaryDates();
 };
 
@@ -282,16 +281,20 @@ calendar_block.prototype.goToPreviousMonth = function(){
     }
 };
 
+calendar_block.prototype.goToYear = function(yy){
+    const self = this;
+    self.currentdate.setFullYear(yy);
+    self.fillblock();
+};
+
 calendar_block.prototype.goToNextYear = function(){
     const self = this;
-    self.currentdate.setFullYear(self.currentdate.getFullYear()+1);
-    self.fillblock();
+    self.goToYear(self.currentdate.getFullYear()+1);
 };
 
 calendar_block.prototype.goToPreviousYear = function(){
     const self = this;
-    self.currentdate.setFullYear(self.currentdate.getFullYear()-1);
-    self.fillblock();
+    self.goToYear(self.currentdate.getFullYear()-1);
 };
 
 calendar_block.prototype.hasDiary = function(date){
@@ -353,11 +356,13 @@ function calendar(mode){
         }
     });
     self.btn_next = $('<li class="next">&#10095;</li>');
+    self.btn_today = $('<li class="today">今天</li>');
     self.btn_prev = $('<li class="prev">&#10094;</li>');
     self.title = $('<li></li>'); // year and month
     $(self.calendar_wrapper.find(".title>ul")[0])
-                           .append(self.btn_prev)
                            .append(self.btn_next)
+                           .append(self.btn_today)
+                           .append(self.btn_prev)
                            .append(self.title);
     
     self.blocks_wrapper= $(self.calendar_wrapper.find(".calendar-blocks")[0]);
@@ -462,9 +467,11 @@ calendar.prototype.setMode = function(mode){
     if(self.mode !== "year"){
         self.btn_next.click(self.goToNextMonth.bind(self));
         self.btn_prev.click(self.goToPreviousMonth.bind(self));
+        self.btn_today.click(self.goToToday.bind(self));
     }else{
         self.btn_next.click(self.goToNextYear.bind(self));
         self.btn_prev.click(self.goToPreviousYear.bind(self));
+        self.btn_today.click(self.goToToday.bind(self));
     }
 };
 
@@ -500,6 +507,28 @@ calendar.prototype.goToPreviousYear = function(){
     });
     self.currentdate.setFullYear(self.currentdate.getFullYear()-1);
     self.title.html(self.currentdate.getFullYear()+"年");
+};
+
+calendar.prototype.goToToday = function(){
+    const self = this;
+    var today = new Date();
+    if(self.mode === "year"){
+        if(self.currentdate.getFullYear()!==today.getFullYear()){
+            self.blocks.each(function(){
+                this.goToYear(today.getFullYear());
+            });
+            self.title.html(today.getFullYear()+"年");
+        }
+    }else if(self.mode === "month"){
+        if(self.currentdate.getFullYear() !== today.getFullYear() ||
+           self.currentdate.getMonth() !== today.getMonth()){
+           self.blocks[0].currentdate = today;
+           self.blocks[0].fillblock();
+           self.title.html(today.getFullYear()+"年"+
+                           calendar.str_months[today.getMonth()]);
+        }
+    }
+    self.currentdate = today;
 };
 
 $(document).ready(function(){
