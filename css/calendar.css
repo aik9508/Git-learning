@@ -14,67 +14,109 @@ and open the template in the editor.
 }
 
 .calendar .calendar-menu ul{
+    margin-top: 20px;
     list-style-type: none;
-    margin: 0;
     padding: 0;
 }
 
 .calendar .calendar-menu li{
     text-align: center;
     display: inline-block;
+    max-width: 100px;
     width: 33.33%;
+    padding: 10px 20px;
+    border: solid 0.5px #646271;
+    color: white;
     cursor: pointer;
 }
 
+.calendar .calendar-menu .mode-year{
+    border-top-left-radius: 5px;
+    border-bottom-left-radius: 5px;
+    border-right: none;
+}
+
+.calendar .calendar-menu .mode-day{
+    border-top-right-radius: 5px;
+    border-bottom-right-radius: 5px;
+    border-left: none;
+}
+
 .calendar .calendar-menu li.active{
-    background: rgba(200,200,200,0.5);;
+    background: rgba(100,98,113,0.5);
 }
 
 /* Month header */
-.calendar .title{
-    padding: 70px 25px;
+.calendar .calendar-title{
+    padding: 30px 25px;
     width: 100%;
-    text-align: center;
 }
 
 /* Month list */
-.calendar .title ul,
+.calendar .calendar-title ul,
 .calendar .weekdays ul{
     list-style-type: none;
     margin: 0;
     padding: 0;
 }
 
-/* Previous button inside month header */
-.calendar .title .next,
-.calendar .title .prev {
-    float: right;
-    cursor: pointer;
-    width: 20px;
-    border-radius: 1px;
-    background-color: rgba(255,255,255,0.25);
+.calendar .calendar-title ul{
+    position: relative;
+    color: #DCC09D;
 }
 
-.calendar .title .today{
-    float: right;
+/* Previous button inside month header */
+.calendar .calendar-title .next,
+.calendar .calendar-title .prev,
+.calendar .calendar-title .today{
+    position: absolute;
     cursor: pointer;
-    width: 50px;
-    border-radius: 1px;
     background-color: rgba(255,255,255,0.25);
+    color: #AF7E5C;
+    text-align: center;
+    height: 20px;
+    margin-bottom: 10px;
+    bottom: 0;
+    right: 0;
+    border-radius: 2px;
+    border: solid 0.5px #646271;
+}
+
+.calendar .calendar-title .next,
+.calendar .calendar-title .prev{
+    width: 20px;
+}
+
+.calendar .calendar-title .prev{
+    margin-right: 72px;
+}
+
+.calendar .calendar-title .today{
+    width: 50px;
+    margin-right: 21px;
+}
+
+.calendar .calendar-title .title{
+    font-size: 40px;
+    bottom: 0;
 }
 
 /* Weekdays (Mon-Sun) */
 .calendar .weekdays {
     margin: 0;
     padding: 10px 0;
-    background-color:rgba(200,200,200,0.5);
+    background-color:rgba(100,98,113,0.5);
 }
 
 .calendar .weekdays li {
     display: inline-block;
     width: 14.2857%;
-    color: #666;
+    color: #B1A799;
     text-align: center;
+}
+
+.calendar .block-title{
+    color: #DCC09D;
 }
 
 .calendar .month-block-mask{
@@ -83,7 +125,7 @@ and open the template in the editor.
 }
 
 .calendar .month-block-mask{
-    border-left: 0.5px solid #eee;
+    border-left: 0.5px solid #646271;
 }
 
 .calendar .month-block.move-on{
@@ -99,14 +141,14 @@ and open the template in the editor.
     vertical-align: top;
     width: 14.2857%;
     height: 100px;
-    border-right: 0.5px solid #eee;
-    border-bottom: 0.5px solid #eee;
+    border-right: 0.5px solid #646271;
+    border-bottom: 0.5px solid #646271;
     padding: 5px;
-    color: #ccc;
+    color: #5C5142;
 }
 
 .calendar .calendar-cell .cell-date-container.emphasize-date{
-    color: black;
+    color: #DCC09D;
 }
 
 .calendar .calendar-cell .cell-date-container{
@@ -130,14 +172,11 @@ and open the template in the editor.
     cursor: pointer;
 }
 
-/* Mini Calendar is used when we don't show it month by month'*/
-
-/* Month header */
-.calendar.mini .title{
-    padding: 5px;
-    width: 100%;
-    text-align: center;
+.calendar .diary-btn{
+    display: none;
 }
+
+/* Mini Calendar is used when we don't show it month by month'*/
 
 /* Weekdays (Mon-Sun) */
 .calendar.mini .weekdays {
@@ -204,21 +243,70 @@ and open the template in the editor.
     float: left;
 }
 
-/* diaryboard */
-.diarywindow{
-    padding: 20px;
-    display: none;
-    margin-left: 200px;
+.calendar.mini.day .calendar-title{
+    padding: 5px;
+    width: 100%;
 }
 
-.diarywindow .prev{
+.calendar.mini.day .calendar-title .title{
+    font-size: 14px;
+}
+
+.calendar.mini.day .calendar-title .next,
+.calendar.mini.day .calendar-title .prev,
+.calendar.mini.day .calendar-title .today{
+    margin-bottom: 0;
+}
+
+.calendar.mini.day .diary-mask{
+    position: relative;
+    top: -300px;
+    height: 300px;
+    width: 100%;
+    z-index: -1;
+}
+
+.calendar.mini.day .diary-mask.diary-mask-show{
+    z-index: 2;
+}
+
+.calendar.mini.day .diary-btn{
+    position: relative;
+    display: block;
+    top: -300px;
+    width: 100%;
+    padding: 10px 0;
+    margin: 5px 0;
+    border: 0.5px solid #646271;
+    border-radius: 5px;
+    text-align: center;
+    color: #AF7E5C;
+    background-color: rgba(255,255,255,0.25);
+    cursor: pointer;
+}
+
+/* diaryboard */
+.diary-window{
+    display: none;
+    padding: 20px;
+    margin-left: 200px;
+    color: #DCC09D;
+}
+
+.diary-window .prev{
     float: left;
     cursor: pointer;
     display: inline-block;
 }
 
-.diarywindow .next{
+.diary-window .next{
     float: right;
     cursor: pointer;
     display: inline-block;
+}
+
+.diary-window .diary-html{
+    color: black;
+    background-color: rgba(255,255,255,0.5);
+    display: none;
 }

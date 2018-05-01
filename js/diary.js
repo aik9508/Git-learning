@@ -1,14 +1,30 @@
 function Diary(cal){
     const self = this;
+    self.mode = "read";
+    self.diarydata = null;
+    self.date = null;
+    self.originhtml = null;
     self.calendar = cal;
-    self.diarywindow = $('<div class="diarywindow">' + 
+    self.diarywindow = $('<div class="diary-window">' + 
                             '<div class="prev">上一篇</div>' +
                             '<div class="next">下一篇</div>' +
-                            '<div class="diarycontent"></div>' +
+                            '<div class="diary-date"></div>' +
+                            '<div class="diary-content"></div>' +
+                            '<div class="diary-html" contenteditable="true"></div>'+
                          '</div>');
-    self.content = $(self.diarywindow.find(".diarycontent")[0]);
+    self.diarydate = $(self.diarywindow.find(".diary-date")[0]);
+    self.content = $(self.diarywindow.find(".diary-content")[0]);
+    self.contenthtml = $(self.diarywindow.find(".diary-html")[0]);
     self.btn_next = $(self.diarywindow).find(".next");
     self.btn_prev = $(self.diarywindow).find(".prev");
+    self.btn_edit = $('<div class="diary-btn diary-edit">修改</>');
+    self.btn_save = $('<div class="diary-btn diary-save">保存</>');
+    self.btn_cancel = $('<div class="diary-btn diary-cancel">取消</>');
+    self.cal_mask = $('<div class="diary-mask"></div>');
+    self.calendar.calendar_wrapper.append(self.cal_mask);
+    self.calendar.calendar_wrapper.append(self.btn_edit);
+    self.calendar.calendar_wrapper.append(self.btn_save);
+    self.calendar.calendar_wrapper.append(self.btn_cancel);
 }
 
 Diary.prototype.init = function(){
@@ -25,10 +41,85 @@ Diary.prototype.init = function(){
             self.opendiary.bind(self)(self.calendar.currentdiary.date);
         }
     });
+    self.btn_edit.click(function(){
+        if(self.mode==="read" || self.mode==="preview"){
+            if(self.mode==="read"){
+                self.originhtml = self.content.prop("innerHTML");
+            }
+            self.mode="edit";
+            self.cal_mask.addClass("diary-mask-show");
+            self.btn_prev.hide();
+            self.btn_next.hide();
+            var rawhtml = self.content.prop("innerHTML");
+            rawhtml=rawhtml.replace(/</g,'&lt;');
+            rawhtml=rawhtml.replace(/>/g,'&gt;');
+            rawhtml=rawhtml.replace(/\n/g,'<br>');
+            self.contenthtml.html(rawhtml);
+            self.content.hide();
+            self.contenthtml.show();
+            self.btn_edit.html("预览");
+        }else if(self.mode==="edit"){
+            self.mode="preview";
+            var rawhtml = self.contenthtml.prop("innerHTML");
+            rawhtml=rawhtml.replace(/<br>/g,'\n');
+            rawhtml=rawhtml.replace(/&lt;/g,'<');
+            rawhtml=rawhtml.replace(/&gt;/g,'>');
+            self.content.html(rawhtml);
+            self.contenthtml.hide();
+            self.content.show();
+            self.btn_edit.html("修改");
+        }
+    });
+    self.btn_save.click(function(){
+        if(self.mode==="preview"||self.mode==="edit"){
+            self.mode="read";
+            var rawhtml = self.contenthtml.prop("innerHTML");
+            rawhtml=rawhtml.replace(/<br>/g,'\n');
+            rawhtml=rawhtml.replace(/&lt;/g,'<');
+            rawhtml=rawhtml.replace(/&gt;/g,'>');
+            self.content.html(rawhtml);
+            self.contenthtml.hide();
+            self.content.show();
+            self.btn_prev.show();
+            self.btn_next.show();
+            self.btn_edit.html("修改");
+            self.cal_mask.removeClass("diary-mask-show");
+            var mm = self.date.getMonth();
+            var yy = self.date.getFullYear();
+            var dd = self.date.getDate();
+            var diarypath = yy+"/"+calendar.str_months_en[mm]+"/"+dd;
+            var post_paras = {diarypath : diarypath,
+                              htmlcontent : rawhtml};
+            if(self.diarydata.format!=="html"){
+                self.diarydata.format="html";
+                post_paras.jsoncontent = JSON.stringify(self.diarydata);
+            }
+            $.post(
+                "savediary.php",
+                post_paras,
+                function(response){
+                    console.log("The diary has been successfully saved.");
+                }
+            );
+        }
+    });
+    self.btn_cancel.click(function(){
+        if(self.mode==="preview"||self.mode==="edit"){
+            self.mode="read";
+            self.content.html(self.originhtml);
+            self.contenthtml.hide();
+            self.content.show();
+            self.btn_prev.show();
+            self.btn_next.show();
+            self.btn_edit.html("修改");
+            self.cal_mask.removeClass("diary-mask-show");
+        }
+    });
 };
 
 Diary.prototype.opendiary = function(date){
     const self = this;
+    self.date = date;
     var mm = date.getMonth();
     var yy = date.getFullYear();
     var dd = date.getDate();
@@ -39,17 +130,35 @@ Diary.prototype.opendiary = function(date){
             error: function(){
             },
             success: function(jsondiarydata){
-                var diarydata = JSON.parse(jsondiarydata);
-                var content = diarydata.content;
+                self.diarydata = JSON.parse(jsondiarydata);
                 self.content.html("");
-                self.content.append(
-                    "<p class='text-center'>"+yy+"年"+(mm+1)+"月"+dd+"日</p>");
                 self.btn_next.html(self.calendar.currentdiary.next?"下一篇":"");
                 self.btn_prev.html(self.calendar.currentdiary.prev?"上一篇":"");
-                $(content).each(function(iter){
-                    self.calendar.diary.content.append(
-                            "<p>"+content[iter]+"</p>");
-                });
+                self.diarydate.html(
+                    "<p class='text-center'>"+yy+"年"+(mm+1)+"月"+dd+"日</p>");
+                if(self.diarydata.format === "html"){
+                    $.ajax({
+                       url: yy+"/"+calendar.str_months_en[mm]+"/"+dd+".diary",
+                       async: true,
+                       error: function(){
+                           var content = self.diarydata.content;
+                           $(content).each(function(iter){
+                                self.calendar.diary.content.append(
+                                        "<p class='text-justify'>"+content[iter]+"</p>");
+                           });
+                       },
+                       success: function(diaryhtml){
+                           self.content.append($(diaryhtml));
+                       }
+                    });
+                }else{
+                    var content = self.diarydata.content;
+                    $(content).each(function(iter){
+                        self.calendar.diary.content.append(
+                                "<p class='text-justify'>"+content[iter]+"</p>");
+                    });
+                }
+                
             }
     });
 };
@@ -229,7 +338,7 @@ calendar_block.prototype.goToNextMonth = function(){
     }
 };
 
-calendar_block.prototype.goToPreviousMonth = function(){
+calendar_block.prototype.goToLastMonth = function(){
     const self = this;
     var clines = self.month_block.find("div.calendar-line");
     if(clines.length===6){
@@ -292,7 +401,7 @@ calendar_block.prototype.goToNextYear = function(){
     self.goToYear(self.currentdate.getFullYear()+1);
 };
 
-calendar_block.prototype.goToPreviousYear = function(){
+calendar_block.prototype.goToLastYear = function(){
     const self = this;
     self.goToYear(self.currentdate.getFullYear()-1);
 };
@@ -326,7 +435,7 @@ function calendar(mode){
                         "<li class='mode-day'>日</li>"+
                     "</ul>"+
                 "</div>"+
-                "<div class='title'>"+
+                "<div class='calendar-title'>"+
                     "<ul></ul>"+
                 "</div>"+
                 "<div class='calendar-blocks'></div>"+
@@ -358,8 +467,8 @@ function calendar(mode){
     self.btn_next = $('<li class="next">&#10095;</li>');
     self.btn_today = $('<li class="today">今天</li>');
     self.btn_prev = $('<li class="prev">&#10094;</li>');
-    self.title = $('<li></li>'); // year and month
-    $(self.calendar_wrapper.find(".title>ul")[0])
+    self.title = $('<li class="title"></li>'); // year and month
+    $(self.calendar_wrapper.find(".calendar-title>ul")[0])
                            .append(self.btn_next)
                            .append(self.btn_today)
                            .append(self.btn_prev)
@@ -367,7 +476,6 @@ function calendar(mode){
     
     self.blocks_wrapper= $(self.calendar_wrapper.find(".calendar-blocks")[0]);
     $.when(self.init()).done(function(){
-        console.log(self.diarydates);
         // things to do after initializing self.diarydates
         self.diary.init();
         self.setMode(self.mode);
@@ -466,11 +574,11 @@ calendar.prototype.setMode = function(mode){
     self.btn_prev.off();
     if(self.mode !== "year"){
         self.btn_next.click(self.goToNextMonth.bind(self));
-        self.btn_prev.click(self.goToPreviousMonth.bind(self));
+        self.btn_prev.click(self.goToLastMonth.bind(self));
         self.btn_today.click(self.goToToday.bind(self));
     }else{
         self.btn_next.click(self.goToNextYear.bind(self));
-        self.btn_prev.click(self.goToPreviousYear.bind(self));
+        self.btn_prev.click(self.goToLastYear.bind(self));
         self.btn_today.click(self.goToToday.bind(self));
     }
 };
@@ -483,9 +591,9 @@ calendar.prototype.goToNextMonth = function(){
                            calendar.str_months[self.currentdate.getMonth()]);
 };
 
-calendar.prototype.goToPreviousMonth = function(){
+calendar.prototype.goToLastMonth = function(){
     const self = this;
-    self.blocks[0].goToPreviousMonth.bind(self.blocks[0])();
+    self.blocks[0].goToLastMonth.bind(self.blocks[0])();
     self.currentdate.setMonth(self.currentdate.getMonth()-1);
     self.title.html(self.currentdate.getFullYear()+"年"+
                            calendar.str_months[self.currentdate.getMonth()]);
@@ -500,10 +608,10 @@ calendar.prototype.goToNextYear = function(){
     self.title.html(self.currentdate.getFullYear()+"年");
 };
 
-calendar.prototype.goToPreviousYear = function(){
+calendar.prototype.goToLastYear = function(){
     const self = this;
     self.blocks.each(function(){
-        this.goToPreviousYear();
+        this.goToLastYear();
     });
     self.currentdate.setFullYear(self.currentdate.getFullYear()-1);
     self.title.html(self.currentdate.getFullYear()+"年");

@@ -1,14 +1,7 @@
-<?php
-
-/* 
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-?>
+<!DOCTYPE html>
 <html>
     <head>
-        <title>Home Page</title>
+        <title>日记</title>
         <link rel="stylesheet" type="text/css" href="../css/personal.css">
         <link rel="stylesheet" type="text/css" href="../css/diary.css">
         <link rel="stylesheet" type="text/css" href="../css/calendar.css">
@@ -18,22 +11,24 @@
         <script src="../js/diary.js"></script>
     </head>
     <body>
-        <div class="container">
-            <div class="row">
-                <h1>Diary</h1>
-                <nav class="navbar navbar-default">
-                        <div class="container-fluid">
-                            <div class="navbar-header">
-                                <a class="navbar-brand" href="#">Aik</a>
+        <div class="head-wrapper">
+            <div class="container">
+                <div class="row">
+                    <h1>日记</h1>
+                    <nav class="navbar navbar-default">
+                            <div class="container-fluid">
+                                <div class="navbar-header">
+                                    <a class="navbar-brand" href="#">Aik</a>
+                                </div>
+                                <ul class="nav navbar-nav">
+                                    <li><a href="../index.php">主页</a></li>
+                                    <li class="active"><a href="#">日记</a></li>
+                                    <li><a href="#">历史</a></li>
+                                    <li><a href="#">相片</a></li>
+                                </ul>
                             </div>
-                            <ul class="nav navbar-nav">
-                                <li><a href="../index.php">Home</a></li>
-                                <li class="active"><a href="#">Diary</a></li>
-                                <li><a href="#">History</a></li>
-                                <li><a href="#">Photos</a></li>
-                            </ul>
-                        </div>
-                    </nav>
+                        </nav>
+                </div>
             </div>
         </div>
         <div class="big-wrapper">           
@@ -46,7 +41,7 @@
             </div>
         </div>
         <footer>
-            <div>Last updated : April 21, 2018</div>
+            <div>Last updated : May 6, 2018</div>
             <div>Author : Ke Wang</div>
         </footer>
     </body>

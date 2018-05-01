@@ -1,7 +1,39 @@
-.f20{
-    font-size:20;
-}
-
 footer{
     text-align: center;
+}
+
+.head-wrapper,
+footer{
+    background-color: #DCC09D;
+}
+
+.head-wrapper h1,
+footer{
+    color: #6493D7;
+}
+
+.head-wrapper h1{
+    font-family: "STLiti";
+}
+
+.lyric{
+    color: #DCC09D;
+    font-family: "STKaiti"; 
+}
+
+.lyric p{
+    font-size: 20px;
+}
+
+.big-wrapper{
+    background-color: #6493D7;
+}
+
+.wrapper{
+    min-height: 100%;
+    background-image: url('../images/plum_flower.jpg');
+    background-size: 100%;
+    background-repeat: no-repeat;
+    background-color: rgb(100,147,215);
+    width: 1170px;
 }
